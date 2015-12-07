@@ -18,7 +18,7 @@ import json
 import polycomp
 import requests
 
-from base import Router, Route, Maneuver, Waypoint
+from .base import Router, Route, Maneuver, Waypoint
 
 
 class Google(Router):
