@@ -30,7 +30,7 @@ class Google(Router):
 
     # https://developers.google.com/maps/documentation/directions/
     def _convert_coordinate(self, p, t=Waypoint.VIA):
-        if isinstance(p, basestring):
+        if isinstance(p, str):
             return p
         if t == Waypoint.VIA:
             via = 'via:'
@@ -115,7 +115,7 @@ class Mapquest(Router):
             via = 'v'
         else:
             via = 's'
-        if isinstance(location, basestring):
+        if isinstance(location, str):
             return {'street': location, 'type': via}
         else:
             return {'latLng': {'lat': location[1], 'lng': location[0]},
