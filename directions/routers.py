@@ -83,7 +83,7 @@ class Google(Router):
                                  text=step['html_instructions'])
                     maneuvers.append(m)
                     latlons.append(
-                        polycomp.decompress(step['polyline']['points'].encode('utf-8'))
+                        polycomp.decompress(step['polyline']['points'].encode('utf-8')))
 
             # latlons is a list of list of lat/lon coordinate pairs. The end
             # point of each list is the same as the first point of the next
