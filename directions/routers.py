@@ -24,6 +24,7 @@ from .base import Router, Route, Maneuver, Waypoint
 class Google(Router):
     url = 'http://maps.googleapis.com/maps/api/directions/json'
     default_name = 'google'
+    modes = ('driving','cycling','walking','transit')
 
     def __init__(self, *args, **kwargs):
         Router.__init__(self, *args, **kwargs)
@@ -58,7 +59,18 @@ class Google(Router):
         return payload
 
     def raw_query(self, waypoints, **kwargs):
+
+
         payload = self._query_params(waypoints)
+
+        # Set transit mode of request
+        mode = kwargs.pop('mode',None)
+        if mode == 'cycling':
+            # Name change
+            mode = 'bicycling'
+        if mode is not None:
+            payload['mode'] = mode
+
         payload.update(kwargs)
 
         r = requests.get(self.url, params=payload)
