@@ -24,6 +24,7 @@ from .base import Router, Route, Maneuver, Waypoint
 class Google(Router):
     url = 'http://maps.googleapis.com/maps/api/directions/json'
     default_name = 'google'
+    modes = ('driving','cycling','walking','transit')
 
     def __init__(self, *args, **kwargs):
         Router.__init__(self, *args, **kwargs)
@@ -58,7 +59,18 @@ class Google(Router):
         return payload
 
     def raw_query(self, waypoints, **kwargs):
+
+
         payload = self._query_params(waypoints)
+
+        # Set transit mode of request
+        mode = kwargs.pop('mode',None)
+        if mode == 'cycling':
+            # Name change
+            mode = 'bicycling'
+        if mode is not None:
+            payload['mode'] = mode
+
         payload.update(kwargs)
 
         r = requests.get(self.url, params=payload)
@@ -191,21 +203,27 @@ class MapquestOpen(Mapquest):
 
 class Mapbox(Router):
     default_name = 'mapbox'
+    modes = ('driving','cycling','walking')
 
     # https://www.mapbox.com/developers/api/directions/
-    def __init__(self, mapid, *args, **kwargs):
+    def __init__(self, access_token, *args, **kwargs):
         Router.__init__(self, *args, **kwargs)
-        self.mapid = mapid
+        self.access_token = access_token
 
     def _convert_coordinate(self, p):
         return '{0[0]},{0[1]}'.format(p)
 
     def raw_query(self, waypoints, **kwargs):
-        baseurl = 'http://api.tiles.mapbox.com/v3/{mapid}/directions/driving/{waypoints}.json'
+        baseurl = 'https://api.mapbox.com/v4/directions/{profile}/{waypoints}.json?access_token={access_token}'
         formatted_points = ';'.join(self._convert_coordinate(p)
                                     for p in waypoints)
 
-        url = baseurl.format(mapid=self.mapid, waypoints=formatted_points)
+        mode = kwargs.pop('mode',self.modes[0])
+
+        url = baseurl.format(
+                access_token=self.access_token,
+                profile='mapbox.'+mode,
+                waypoints=formatted_points)
         payload = {'alternatives': 'false'}
         r = requests.get(url, params=payload)
 
